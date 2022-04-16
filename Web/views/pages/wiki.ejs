@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= pageData.pageTitle %></title>
+    <% include ../partials/head %>
+</head>
+<body>
+	<section id="header" class="main-header-section hero is-primary is-small is-bold">
+		<div class="hero-head">
+			<% include ../partials/header %>
+		</div>
+		<div class="hero-body">
+			<div class="container has-text-centered">
+				<h1 class="title is-1">
+					<span class="icon is-large">
+                        <i class="fa fa-book"></i>
+                    </span>
+					GAwesomeBot <strong>Wiki</strong>
+				</h1>
+				<h3 class="subtitle is-3">
+					Documentation for everything.
+				</h3>
+				<%- include("../partials/adspace", { officialMode: typeof officialMode !== undefined ? officialMode : false, adsEnabled: true }) %>
+				<% if (pageData.mode !== "edit") { %>
+				<% const menuToggleButtonSize = ""; %>
+				<% include ../partials/menu-toggle %>
+				<% } %>
+			</div>
+		</div>
+	</section>
+	<section class="section is-white">
+		<div class="container">
+			<div class="columns">
+				<% if (pageData.mode !== "edit") { %>
+					<div id="menu" class="column is-one-quarter">
+						<div class="field has-addons has-addons-centered">
+							<div class="control is-expanded">
+								<input id="search-input" class="input is-primary" type="text" placeholder="I'm looking for..." onkeydown="if (event.keyCode === 13) {GAwesomeUtil.searchWiki(this.value);}" value="<%= pageData.activeSearchQuery %>">
+							</div>
+							<div class="control">
+							<a id="search-button" class="button" href="javascript:GAwesomeUtil.searchWiki(document.getElementById('search-input').value);">
+								<span class="icon is-small">
+									<i class="fa fa-search"></i>
+								</span>
+								<span>Search</span>
+							</a>
+							</div>
+						</div>
+						<% if (isContributor) { %>
+							<a class="button is-fullwidth" href="/wiki/new">
+								<span class="icon">
+			                        <i class="fa fa-plus"></i>
+			                    </span>
+			                    <span>New Page</span>
+		                    </a>
+						<% } %>
+						<span id="menu-spacer" class="is-hidden"><br></span>
+						<aside class="menu">
+							<span id="bookmarks-menu" class="is-hidden">
+								<p class="menu-label">
+									Bookmarks
+								</p>
+								<ul id="bookmarks-submenu" class="menu-list"></ul>
+							</span>
+							<% if (pageData.pageList.length > 0) { %>
+								<p class="menu-label">
+									Pages
+								</p>
+								<ul class="menu-list">
+									<% pageData.pageList.forEach(pageListItem => { %>
+										<li>
+											<% var pageName = pageListItem.substring(0, pageListItem.indexOf(".")); %>
+											<a id="menu-<%= pageListItem %>" class="<%= pageListItem === pageData.title ? 'is-active' : '' %>" href="/wiki/<%= pageListItem %>">
+												<%= pageListItem %>
+											</a>
+										</li>
+									<% }); %>
+								</ul>
+							<% } %>
+							<% if (pageData.mode === "page" && pageData.content) { %>
+								<p class="menu-label">
+									Sections
+								</p>
+								<ul id="submenu" class="menu-list"></ul>
+							<% } %>
+						</aside>
+					</div>
+				<% } %>
+				<div class="column">
+					<nav class="level is-mobile">
+						<div class="level-left">
+							<h1 id="page-title" class="title">
+								<%= pageData.title %>
+							</h1>
+						</div>
+						<% if (pageData.mode === "page" && pageData.content) { %>
+							<script>
+					        function addReaction(value) {
+					            $.ajax({
+					        		type: "POST",
+					        		url: "/wiki/<%= pageData.title %>/react?value=" + value,
+					        		success: function() {
+					        			Turbolinks.visit("");
+					        		}
+					        	});
+					        }
+					        </script>
+
+							<div class="level-right">
+								<div class="level-item">
+									<div class="field has-addons">
+										<p class="control">
+											<a class="button <%= (authUser && pageData.userReaction.value === -1) ? 'is-dark' : 'is-light' %>" onclick="addReaction(-1);" title="This page was not helpful"<%= !authUser ? ' disabled' : '' %>>
+												<span class="icon is-small">
+													<i class="fa fa-thumbs-o-down"></i>
+												</span>
+												<span><%= pageData.reactions[-1] %></span>
+											</a>
+										</p>
+										<p class="control">
+											<a class="button <%= (authUser && pageData.userReaction.value === 1) ? 'is-dark' : 'is-light' %>" onclick="addReaction(1);" title="This page was helpful"<%= !authUser ? ' disabled' : '' %>>
+												<span class="icon is-small">
+													<i class="fa fa-thumbs-o-up"></i>
+												</span>
+												<span><%= pageData.reactions[1] %></span>
+											</a>
+										</p>
+									</div>
+								</div>
+								<div class="level-item">
+									<div class="buttons">
+										<a class="button is-dark is-outlined" href="/wiki/<%= pageData.title %>/history">
+											<span class="icon is-small">
+												<i class="fa fa-history"></i>
+											</span>
+											<span>History</span>
+										</a>
+									<% if (isContributor) { %>
+						                	<a class="button is-info is-outlined" href="/wiki/<%= pageData.title %>/edit">
+						                    	<span class="icon is-small">
+						                        	<i class="fa fa-pencil"></i>
+						                    	</span>
+						                    	<span>Edit</span>
+						                	</a>
+						            	<script>
+						            	function deletePage(id) {
+						                	const prompt = confirm("Are you sure you want to delete this page?");
+						                	if(prompt) {
+						                    	$.ajax({
+						                			type: "POST",
+						                			url: "/wiki/" + id + "/delete",
+						                			success: function() {
+						                				Turbolinks.visit("/wiki");
+						                			}
+						                		});
+						                	}
+						            	}
+						            	</script>
+						                	<a class="button is-danger is-outlined" onclick="deletePage('<%= pageData.title %>');">
+						                    	<span class="icon is-small">
+						                        	<i class="fa fa-times"></i>
+						                    	</span>
+						                    	<span>Delete</span>
+						                	</a>
+										</div>
+									<% } %>
+								</div>
+							</div>
+						<% } %>
+					</nav>
+					<div id="frame" class="<%= (pageData.mode === 'page' && pageData.content) ? 'content' : '' %>">
+						<% if (pageData.mode === "search") { %>
+							<% include ../partials/wiki-search-results %>
+						<% } else if (["page", "history"].includes(pageData.mode)) { %>
+							<% if (pageData.mode === "page" && pageData.content) { %>
+								<%- pageData.content %>
+							<% } else if (pageData.mode === "history" && pageData.updates) { %>
+								<% include ../partials/wiki-edit-history %>
+							<% } else { %>
+								<% const activeSearchQuery = pageData.activeSearchQuery; %>
+								<% const mode = pageData.title %>
+                        		<%- include("../partials/no-results", { isSearchQuery: true, activeSearchQuery, resetUrl: null, mode }) %>
+							<% } %>
+						<% } else if (pageData.mode === "edit") { %>
+							<% include ../partials/wiki-editor %>
+						<% } %>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<% if (pageData.mode === "page" && pageData.content) { %>
+		<script>
+		GAwesomeUtil.populateWikiSections();
+		</script>
+	<% } %>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
+</html>
