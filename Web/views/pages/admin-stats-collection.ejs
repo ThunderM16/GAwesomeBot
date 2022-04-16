@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= serverData.name %> Stats Collection - GAwesomeBot Admin Console</title>
+	<% include ../partials/head %>
+
+	<script src="/static/js/form-change-listener.js"></script>
+</head>
+<body onload="GAwesomeUtil.SFS();">
+	<% include ../partials/dashboard-header %>
+	<% include ../partials/dashboard-socket-updates %>
+
+	<section class="section is-white">
+		<div class="container">
+			<div class="columns">
+				<div id="menu" class="column is-one-quarter">
+					<% include ../partials/admin-menu %>
+				</div>
+				<div class="column">
+					<h1 class="title">
+						Stats Collection
+					</h1>
+					<article class="message is-primary">
+						<div class="message-body">
+							GAwesomeBot constantly records information about <strong>message, voice, and game activity</strong> on your server. You can view this data in the <code>stats</code> command, on the <a href="/dashboard/<%= serverData.id %>/overview">overview page</a>, and more.
+						</div>
+					</article>
+					<form id="form" onsubmit="GAwesomeUtil.submitForm(); return false;">
+						<div class="command-items">
+						<% var commandData = configData.commands.stats; commandData.name = "stats"; commandData.description = pageData.commandDescriptions.stats; commandData.category = pageData.commandCategories.stats; %>
+						<% include ../partials/admin-command-item %>
+						<% commandData = configData.commands.messages; commandData.name = "messages"; commandData.description = pageData.commandDescriptions.messages; commandData.category = pageData.commandCategories.messages; %>
+						<% include ../partials/admin-command-item %>
+						</div>
+						<br>
+						<% var formButtonsUnsaved = false; %>
+						<% include ../partials/form-buttons %>
+						<% include ../partials/form-buttons-bar %>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
+</html>
