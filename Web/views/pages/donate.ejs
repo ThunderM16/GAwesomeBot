@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Donate to GAwesomeBot</title>
+	<% include ../partials/head %>
+
+	<script>
+	function hideDonate() {
+	    var prompt = confirm("Are you sure? You won't ever see the donate button again :(");
+	    if(prompt) {
+	        localStorage.setItem("donate", "hide");
+			window.history.back();
+	    }
+	}
+	</script>
+</head>
+<body>
+	<script>
+	localStorage.setItem("donate", null);
+	</script>
+	<section id="header" class="main-header-section hero is-primary is-medium is-bold">
+		<div class="hero-head">
+			<% include ../partials/header %>
+		</div>
+		<div class="hero-body">
+			<div class="container">
+                <div class="columns">
+					<div class="column is-half is-offset-one-quarter">
+                        <h2 class="title is-2 has-text-centered">
+                            <strong>Thank you</strong> for your support!
+                        </h2>
+						<% if (configData.charities.length > 0) { %>
+	                        <h5 class="subtitle is-5">
+								<%- configData.donateSubtitle %>
+	                        </h5>
+							<% configData.charities.forEach(charity => { %>
+		                        <a class="level is-mobile arrow-link" href="<%= charity.donate_url %>">
+		                            <div class="level-left">
+										<div class="level-item">
+											<img class="image is-32x32" src="<%= charity.icon_url %>">
+										</div>
+										<div class="level-item">
+											<p class="title is-3">
+                                                <%= charity.name %>
+                                                <% if (charity.country) { %>
+												<span class="tag is-rounded is-light"><%= charity.country %></span>
+                                                <% } %>
+											</p>
+										</div>
+		                            </div>
+		                            <div class="level-right">
+										<div class="level-item">
+		                                <span class="icon is-primary is-medium">
+		                                    <i class="fa fa-chevron-right fa-2x"></i>
+		                                </span>
+										</div>
+		                            </div>
+		                        </a>
+							<% }); %>
+						<% } %>
+						<% if (officialMode) { %>
+							<h5 class="subtitle is-5">
+								By viewing ads, you are supporting us develop and maintain GAB publicly. However, we understand ads can be annoying and ruin the viewing experience. While we attempt to keep our ads as user-friendly as possible, you can disable ads here to prevent seeing them in this browser or enable them to continue supporting us.
+							</h5>
+							<a class="button is-medium is-fullwidth is-outlined <%= adsense.isEnabled ? "is-danger" : "is-success"%>" onclick="GAwesomeUtil.toggleAds('<%= adsense.isEnabled %>');"><%= adsense.isEnabled ? "Disable" : "Enable" %> advertisements and sponsored content</a>
+						<% } %>
+                    </div>
+                </div>
+			</div>
+		</div>
+		<div class="hero-foot">
+			<div class="container has-text-centered">
+                <a class="button is-white is-outlined" onclick="hideDonate();">
+                    <span>Hide the donate button forever</span>
+                    <span class="icon">
+                        <i class="fa fa-frown-o"></i>
+                    </span>
+                </a>
+                <br>
+			</div>
+		</div>
+		<br>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+	<!-- Because joke bot wars are fun, *and jokes* -->
+	<script>
+			$('#auttaja-a').on('mouseenter', () => {
+				$('#auttaja-a a').css('visibility', 'visible');
+			}).on('mouseleave', () => {
+				$('#auttaja-a a').css('visibility', 'hidden');
+			})
+			$('#auttaja-a a').click(() => {
+				$('#auttaja').toggle();
+			})
+	</script>
+</body>
+</html>
