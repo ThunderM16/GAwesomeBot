@@ -1,0 +1,106 @@
+<form id="form" onsubmit="return false;">
+	<div style="overflow-x: scroll;">
+		<% if (pageData.extensions.length > 0) { %>
+			<table class="table is-fullwidth">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>ID</th>
+						<th>Latest Version</th>
+						<th>Status</th>
+						<th>Type</th>
+						<th>Points</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% pageData.extensions.forEach(extension => { %>
+						<tr>
+							<td>
+								<%= extension.name %>
+							</td>
+							<td>
+								<%= extension._id %>
+							</td>
+							<td>
+								V<%= extension.version %>
+							</td>
+							<td>
+								<% if (extension.state === "gallery") { %>
+								Published
+								<% } else if (extension.state === "queue") { %>
+								In Queue
+								<% } else if (extension.state === "version_queue") { %>
+								Version in Queue
+								<% } else { %>
+								Saved
+								<% } %>
+							</td>
+							<td>
+								<%= extension.versions.id(extension.version).type.charAt(0).toUpperCase() + extension.versions.id(extension.version).type.slice(1) %>
+							</td>
+							<td>
+								<%= extension.points %>
+							</td>
+							<td>
+								<% if (extension.state !== "saved") { %>
+								<a class="button is-small" href="/extensions/<%= extension.state === "version_queue" ? "queue" : extension.state %>?id=<%= extension._id %>">
+									<span class="icon is-small">
+										<i class="fa fa-eye"></i>
+									</span>
+									<span>View</span>
+								</a>
+								<% } else { %>
+								<button id="publish-<%= extension._id %>" class="button is-small" onclick="GAwesomeUtil.publishExtension('<%= extension._id %>'); return false;">
+									<span class="icon is-small">
+										<i class="fa fa-share-alt"></i>
+									</span>
+									<span>Publish</span>
+								</button>
+								<% } %>
+								<a class="button is-small is-primary" href="/extensions/builder?extid=<%= extension._id %>">
+									<span class="icon is-small">
+										<i class="fa fa-pencil"></i>
+									</span>
+									<span>Edit</span>
+								</a>
+								<button id="delete-<%= extension._id %>" class="button is-small is-danger" onclick="GAwesomeUtil.deleteExtension('<%= extension._id %>'); return false;">
+									<span>Delete</span>
+									<span class="icon is-small">
+										<i class="fa fa-trash"></i>
+									</span>
+								</button>
+							</td>
+						</tr>
+					<% }); %>
+				</tbody>
+			</table>
+		<% } else { %>
+			<article class="message">
+				<div class="message-header">
+					<p>
+						<span class="icon">
+							<i class="fa fa-meh-o"></i>
+						</span>
+						Nothing to see here
+					</p>
+				</div>
+				<div class="message-body">
+					You haven't published any extensions yet. Head over to the <a href="/extensions/builder">extension builder</a> to get started building one!
+				</div>
+			</article>
+			<br>
+		<% } %>
+	</div>
+	<br>
+	<div class="field">
+		<p class="control">
+			<a class="button" href="/extensions/builder">
+				<span class="icon">
+					<i class="fa fa-code"></i>
+		    	</span>
+		    	<span>Build an extension</span>
+			</a>
+		</p>
+	</div>
+</form>

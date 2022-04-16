@@ -1,0 +1,55 @@
+<h3 class="subtitle is-3">
+    <%- pageData.data.title ? ("Edit <strong>" + pageData.data.title + "</strong>") : "Write a new post" %>
+</h3>
+<form id="form" action="/blog/<%= pageData.data.id ? pageData.data.id : "new" %>/compose" method="post">
+    <div class="field">
+        <label class="label">Title</label>
+	    <div class="control">
+		    <input id="composer-title" name="title" class="input is-primary" type="text" value="<%= pageData.data.title %>" minlength="10" maxlength="100" required>
+		    <span class="help">Name of the post. Be concise and informative.</span>
+	    </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Category</label>
+        <div class="control">
+            <span class="select is-primary">
+                <select name="category">
+                    <option <%= pageData.data.category === "Development" ? "selected" : "" %>>Development</option>
+                    <option <%= pageData.data.category === "Announcement" ? "selected" : "" %>>Announcement</option>
+                    <option <%= pageData.data.category === "New Stuff" ? "selected" : "" %>>New Stuff</option>
+                    <option <%= pageData.data.category === "Tutorial" ? "selected" : "" %>>Tutorial</option>
+                    <option <%= pageData.data.category === "Random" ? "selected" : "" %>>Random</option>
+                </select>
+            </span>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Content</label>
+        <div class="control">
+            <textarea name="content" id="composer-content" class="textarea is-primary" placeholder="Post content, in markdown" required><%= pageData.data.content %></textarea>
+        </div>
+        <span class="help" style="float: right;margin-right: 15px; margin-top: 10px;">Editor by <strong>SimpleMDE</strong></span>
+    </div>
+
+    <div class="field">
+        <a class="button is-small" onclick="GAwesomeUtil.downloadContent();">
+				<span class="icon is-small">
+					<i class="fa fa-download"></i>
+				</span>
+            <span>Download</span>
+        </a>
+        <label class="button is-small">
+				<span class="icon is-small">
+					<i class="fa fa-upload"></i>
+				</span>
+            <span>Upload</span>
+            <input id="composer-content-upload" type="file" onchange="GAwesomeUtil.uploadContent(this.files, 'blog');" style="display: none;">
+        </label>
+    </div>
+
+    <% var formButtonsUnsaved = false; %>
+    <% include ../partials/form-buttons %>
+    <% include ../partials/form-buttons-bar %>
+</form>
