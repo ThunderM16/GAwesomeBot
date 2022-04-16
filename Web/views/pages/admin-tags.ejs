@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= serverData.name %> Tags - GAwesomeBot Admin Console</title>
+	<% include ../partials/head %>
+	<script>
+	function newTag() {
+		var newTagName = $("#new-tag-name");
+		if(newTagName.val()) {
+			newTagName.removeClass("is-danger");
+		} else {
+			newTagName.addClass("is-danger");
+		}
+
+		var newTagType = $("#new-tag-type");
+
+		var newTagContent = $("#new-tag-content");
+		if(newTagContent.val()) {
+			newTagContent.removeClass("is-danger");
+		} else {
+			newTagContent.addClass("is-danger");
+		}
+
+		if(newTagName.val() && newTagContent.val()) {
+			GAwesomeData.HUM = true;
+			$.ajax({
+				type: "POST",
+				url: "<%= currentPage %>",
+				data: {
+					"new-name": newTagName.val(),
+					"new-type": newTagType.val(),
+					"new-content": newTagContent.val()
+				},
+				success: function() {
+					GAwesomeData.HUM = true;
+				  	Turbolinks.visit('');
+				}
+			});
+		}
+	}
+	</script>
+</head>
+<body onload="GAwesomeUtil.SFS();">
+	<% include ../partials/dashboard-header %>
+	<% include ../partials/dashboard-socket-updates %>
+
+	<section class="section is-white">
+		<div class="container">
+			<div class="columns">
+				<div id="menu" class="column is-one-quarter">
+					<% include ../partials/admin-menu %>
+				</div>
+				<div class="column">
+					<h1 class="title">
+						Tags
+					</h1>
+					<article class="message is-primary">
+						<div class="message-body">
+							GAwesomeBot comes with a <strong>robust tag system</strong> that allows you to save <strong>snippets of text</strong>, identified by a unique label. They're useful for links useful in your server, funny quotes, or temporary notes. You can designate some tags as commands, making them accessible as normal commands using the usual syntax. Locking a tag prevents the tag from being removed using the <code>tag</code> command, admins excluded.
+						</div>
+					</article>
+					<form id="form" onsubmit="GAwesomeUtil.submitForm(); return false;">
+						<h4 class="subtitle is-4">
+							General
+						</h4>
+						<div class="command-items">
+						<% const commandData = configData.commands.tag; commandData.name = "tag"; commandData.description = pageData.commandDescriptions.tag; commandData.category = pageData.commandCategories.tag; %>
+						<% include ../partials/admin-command-item %>
+						</div>
+							<div class="field tag-options<%= commandData.isEnabled ? '' : ' is-hidden' %>">
+								<div class="field">
+									List all tags:
+									<div class="select is-primary is-small">
+										<select name="listIsAdminOnly">
+											<option value="false"<%= configData.tags.listIsAdminOnly ? "" : " selected" %>>@everyone</option>
+											<option value="true"<%= configData.tags.listIsAdminOnly ? " selected" : "" %>>Admin-only</option>
+										</select>
+									</div>
+								</div>
+								<div class="field">
+									Add tags:
+									<div class="select is-primary is-small">
+										<select name="addingIsAdminOnly">
+											<option value="false"<%= configData.tags.addingIsAdminOnly ? "" : " selected" %>>@everyone</option>
+											<option value="true"<%= configData.tags.addingIsAdminOnly ? " selected" : "" %>>Admin-only</option>
+										</select>
+									</div>
+								</div>
+								<div class="field">
+									Add tag commands:
+									<span class="select is-primary is-small">
+										<select name="addingCommandIsAdminOnly">
+											<option value="false"<%= configData.tags.addingCommandIsAdminOnly ? "" : " selected" %>>@everyone</option>
+											<option value="true"<%= configData.tags.addingCommandIsAdminOnly ? " selected" : "" %>>Admin-only</option>
+										</select>
+									</span>
+								</div>
+								<div class="field">
+									Remove tags:
+									<span class="select is-primary is-small">
+										<select name="removingIsAdminOnly">
+											<option value="false"<%= configData.tags.removingIsAdminOnly ? "" : " selected" %>>@everyone</option>
+											<option value="true"<%= configData.tags.removingIsAdminOnly ? " selected" : "" %>>Admin-only</option>
+										</select>
+									</span>
+								</div>
+								<div class="field">
+									Remove tag commands:
+									<span class="select is-primary is-small">
+										<select name="removingCommandIsAdminOnly">
+											<option value="false"<%= configData.tags.removingCommandIsAdminOnly ? "" : " selected" %>>@everyone</option>
+											<option value="true"<%= configData.tags.removingCommandIsAdminOnly ? " selected" : "" %>>Admin-only</option>
+										</select>
+									</span>
+								</div>
+							</div>
+							<br>
+							<h4 class="subtitle is-4">
+								Tag List
+							</h4>
+							<div class="field" style="overflow-x: scroll;">
+								<%- include("../partials/no-results", { isHidden: configData.tags.list.length, isSearchQuery: false, description: "You haven't added any tags yet. Save a snippet by filling out the form below." }) %>
+								<table class="table is-fullwidth<%= configData.tags.list.length ? "" : " is-hidden" %>">
+									<thead>
+										<tr>
+											<th>Name</th>
+											<th>Text</th>
+											<th>Type</th>
+											<th>Locked?</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% configData.tags.list.forEach(tag => { %>
+											<tr>
+												<td>
+													<%= tag._id %>
+												</td>
+												<td>
+													<%- tag.content %>
+												</td>
+												<td>
+													<p class="control">
+														<span class="select is-primary is-small">
+															<select name="tag-<%= tag._id %>-isCommand">
+																<option value="text"<%= tag.isCommand ? "" : " selected" %>>Text</option>
+																<option value="command"<%= tag.isCommand ? " selected" : "" %>>Command</option>
+															</select>
+														</span>
+													</p>
+												</td>
+												<td>
+													<p class="control">
+														<label class="checkbox">
+															<input name="tag-<%= tag._id %>-isLocked" type="checkbox"<%= tag.isLocked ? " checked" : "" %>>
+														</label>
+													</p>
+												</td>
+												<td>
+													<button class="button is-small is-danger" name="<%= tag._id %>" onclick="GAwesomeUtil.dashboard.removeTableElement(this); return false;">
+														<span>Remove</span>
+														<span class="icon is-small">
+															<i class="fa fa-times"></i>
+														</span>
+													</button>
+												</td>
+											</tr>
+										<% }); %>
+									</tbody>
+								</table>
+							</div>
+							<div class="field is-horizontal">
+								<div class="field-body">
+									<div class="field is-grouped">
+										<div class="control is-expanded">
+											<input id="new-tag-name" class="input is-primary" type="text" minlength="1" maxlength="200" placeholder="Name" onkeypress="return event.keyCode !== 13;">
+										</div>
+										<div class="control">
+											<span class="select is-primary">
+												<select id="new-tag-type">
+													<option value="text">Text</option>
+													<option value="command">Command</option>
+												</select>
+											</span>
+										</div>
+										<div class="control">
+											<a class="button is-primary" onclick="newTag();">
+												<span class="icon">
+										        	<i class="fa fa-plus"></i>
+										    	</span>
+										    	<span>Add</span>
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						<div class="field">
+							<div class="control is-expanded">
+								<textarea id="new-tag-content" class="input is-primary" type="textarea" minlength="1" maxlength="2000" placeholder="Tag content" style="resize: vertical;"></textarea>
+							</div>
+						</div>
+						<br>
+						<% var formButtonsUnsaved = false; %>
+						<% include ../partials/form-buttons %>
+						<% include ../partials/form-buttons-bar %>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
+</html>

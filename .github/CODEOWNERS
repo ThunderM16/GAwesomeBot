@@ -1,0 +1,20 @@
+# Code ownership file
+*    @GilbertGobbels
+
+/.github/    @KingDGrizzle
+/Configurations/    @GilbertGobbels @KingDGrizzle
+/Commands/    @KingDGrizzle
+/Database/    @GilbertGobbels
+/Internals/Events/    @KingDGrizzle
+/Internals/    @GilbertGobbels @KingDGrizzle
+/Modules/    @KingDGrizzle @GilbertGobbels
+/Web/    @GilbertGobbels
+
+/Internals/Logger.js    @GilbertGobbels
+/Internals/Sharder.js    @GilbertGobbels
+/Internals/IPC.js    @GilbertGobbels
+/Modules/GAwesomeClient.js    @GilbertGobbels
+/master.js    @GilbertGobbels
+/package.json    @KingDGrizzle
+/.eslintrc.js    @KingDGrizzle
+/LICENSE    @GilbertGobbels
