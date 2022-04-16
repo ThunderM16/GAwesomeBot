@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= serverData.name %> RSS Feeds - GAwesomeBot Admin Console</title>
+	<% include ../partials/head %>
+
+	<script>
+	function newRss() {
+		var newRssUrl = $("#new-rss-url");
+		if(newRssUrl.val()) {
+			newRssUrl.removeClass("is-danger");
+		} else {
+			newRssUrl.addClass("is-danger");
+		}
+
+		var newRssName = $("#new-rss-name");
+		if(newRssName.val()) {
+			newRssName.removeClass("is-danger");
+		} else {
+			newRssName.addClass("is-danger");
+		}
+
+		if(newRssUrl.val() && newRssName.val()) {
+		  GAwesomeData.HUM = true;
+		  $.ajax({
+				type: "POST",
+				url: "<%= currentPage %>",
+				data: {
+					"new-url": newRssUrl.val(),
+					"new-name": newRssName.val().toLowerCase()
+				},
+				success: function() {
+				  GAwesomeUtil.SFS();
+				  GAwesomeData.HUM = true;
+				  $("#form").submit();
+				  Turbolinks.visit('');
+				}
+			});
+		}
+	}
+
+	function newRssUrl(site) {
+	    var url = "";
+	    switch(site) {
+	        case "github":
+	            url = "https://github.com/USERNAME/REPO/commits/master.atom";
+	            break;
+	        case "reddit":
+	            url = "https://www.reddit.com/r/SUBREDDIT/new/.rss";
+	            break;
+	        case "twitter":
+	            url = "http://twitrss.me/twitter_user_to_rss/?user=USERNAME";
+	            break;
+	    }
+	    document.getElementById("new-rss-url").value = url;
+	}
+	</script>
+</head>
+<body onload="GAwesomeUtil.SFS();">
+	<% include ../partials/dashboard-header %>
+	<% include ../partials/dashboard-socket-updates %>
+
+	<section class="section is-white">
+		<div class="container">
+			<div class="columns">
+				<div id="menu" class="column is-one-quarter">
+					<% include ../partials/admin-menu %>
+				</div>
+				<div class="column">
+					<h1 class="title">
+						RSS Feeds
+					</h1>
+					<article class="message is-primary">
+						<div class="message-body">
+							These <strong>RSS feeds can be accessed via the <code>rss</code> command</strong> by their unique name. For feeds that have streaming enabled, new articles will be posted in the channel you choose every 15 minutes or so. In general, RSS feeds can be used as a means to pull content from a variety of <strong>online services</strong> for which there is no built-in GAwesomeBot command.
+						</div>
+					</article>
+					<form id="form" onsubmit="GAwesomeUtil.submitForm(); return false;">
+						<div class="command-items">
+						<% const commandData = configData.commands.rss; commandData.name = "rss"; commandData.description = pageData.commandDescriptions.rss; commandData.category = pageData.commandCategories.rss; %>
+						<% include ../partials/admin-command-item %>
+						</div>
+							<div class="field" style="overflow-x: scroll;">
+                                <%- include("../partials/no-results", { isHidden: configData.rss_feeds.length, isSearchQuery: false, description: "You haven't added any RSS feeds yet. Fill out the form below to get started." }) %>
+								<table class="table is-fullwidth<%= configData.rss_feeds.length ? "" : " is-hidden" %>">
+									<thead>
+										<tr>
+											<th>Name</th>
+											<th>URL</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% configData.rss_feeds.forEach(feed => { %>
+											<tr>
+												<td>
+													<%= feed._id %>
+												</td>
+												<td>
+													<%= feed.url %>
+												</td>
+												<td>
+													<a class="button modal-button is-small is-primary" data-target="#rss-<%= feed._id.replace(/\s/g, "") %>-updates-modal">
+														<span class="icon is-small">
+															<i class="fa fa-refresh"></i>
+														</span>
+														<span>Updates</span>
+													</a>
+													<button class="button is-small is-danger" name="<%= feed._id %>" onclick="GAwesomeUtil.dashboard.removeTableElement(this); return false;">
+														<span>Remove</span>
+														<span class="icon is-small">
+															<i class="fa fa-times"></i>
+														</span>
+													</button>
+													<div id="rss-<%= feed._id.replace(/\s/g, "") %>-updates-modal" class="modal">
+														<div class="modal-background"></div>
+														<div class="modal-container">
+															<div class="modal-content">
+																<div class="box">
+																	<h4 class="subtitle is-4">
+																		RSS feed <strong><%= feed._id %></strong>
+																	</h4>
+																	<p class="control">
+																		<label class="checkbox">
+																			<input name="rss-<%= feed._id %>-streaming-isEnabled" type="checkbox" onclick="$('#rss-<%= feed._id.replace(/\s/g, "") %>-streaming-options').toggleClass('is-hidden');" <%= feed.streaming.isEnabled ? "checked" : "" %>>
+																			Send <strong>streaming RSS updates</strong> in these channels:
+																		</label>
+																		<span id="rss-<%= feed._id.replace(/\s/g, "") %>-streaming-options" class="<%= feed.streaming.isEnabled ? '' : 'is-hidden' %>">
+                                                                            <% pageData.channelData.forEach(channel => { %>
+																			<br>
+																		&nbsp;&nbsp;&nbsp;
+																		<label class="checkbox">
+																			<input name="rss-<%= feed._id %>-streaming-enabled_channel_ids-<%= channel.id %>" type="checkbox" <%= feed.streaming.enabled_channel_ids.indexOf(channel.id)>-1 ? "checked" : "" %>>
+																			#<%= channel.name %>
+																		</label>
+                                                                            <% }); %>
+																		</span>
+																	</p>
+																</div>
+															</div>
+														</div>
+														<a class="modal-close"></a>
+													</div>
+												</td>
+											</tr>
+											<% }); %>
+										</tbody>
+									</table>
+							</div>
+							<div class="field is-grouped">
+								<div class="control is-expanded">
+									<input id="new-rss-url" class="input is-primary" type="url" placeholder="RSS URL" onkeypress="return event.keyCode !== 13;">
+								</div>
+								<div class="field has-addons">
+									<div class="control">
+										<a class="button" href="javascript:newRssUrl('github');">
+											<span class="icon is-small">
+												<i class="fa fa-github"></i>
+											</span>
+											<span>GitHub</span>
+										</a>
+									</div>
+									<div class="control">
+										<a class="button" href="javascript:newRssUrl('reddit');">
+											<span class="icon is-small">
+												<i class="fa fa-reddit-alien"></i>
+											</span>
+											<span>Reddit</span>
+										</a>
+									</div>
+									<div class="control">
+										<a class="button" href="javascript:newRssUrl('twitter');">
+											<span class="icon is-small">
+												<i class="fa fa-twitter"></i>
+											</span>
+											<span>Twitter</span>
+										</a>
+									</div>
+								</div>
+							</div>
+							<div class="field is-horizontal">
+								<div class="field-body">
+									<div class="field is-grouped">
+										<div class="control is-expanded">
+											<input id="new-rss-name" class="input is-primary" type="text" minlength="5" maxlength="50" placeholder="Name" onkeypress="return event.keyCode !== 13;">
+										</div>
+										<div class="control">
+											<a class="button is-primary" onclick="newRss();">
+												<span class="icon">
+										        	<i class="fa fa-plus"></i>
+										    	</span>
+										    	<span>Add</span>
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							<br>
+                            <% var formButtonsUnsaved = false; %>
+                            <% include ../partials/form-buttons %>
+                            <% include ../partials/form-buttons-bar %>
+						</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
+</html>
