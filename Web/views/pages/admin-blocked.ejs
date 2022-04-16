@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= serverData.name %> Blocked - GAwesomeBot Admin Console</title>
+	<% include ../partials/head %>
+	<script>
+	function newBlock() {
+		var newBlockMember = $("#new-block-member");
+		if(newBlockMember.val()) {
+			newBlockMember.removeClass("is-danger");
+		} else {
+			newBlockMember.addClass("is-danger");
+		}
+
+		if(newBlockMember.val()) {
+			GAwesomeData.HUM = true;
+			$.ajax({
+				type: "POST",
+				url: "<%= currentPage %>",
+				data: {
+					"new-member": newBlockMember.val()
+				},
+				success: function() {
+				  Turbolinks.visit('');
+				}
+			});
+		}
+	}
+	</script>
+</head>
+<body>
+	<% include ../partials/dashboard-header %>
+	<% include ../partials/dashboard-socket-updates %>
+
+	<section class="section is-white">
+		<div class="container">
+			<div class="columns">
+				<div id="menu" class="column is-one-quarter">
+					<% include ../partials/admin-menu %>
+				</div>
+				<div class="column">
+					<h1 class="title">
+						Blocked Members
+					</h1>
+					<article class="message is-primary">
+						<div class="message-body">
+							<div class="content">
+								These users will <strong>not</strong> be permitted to use the bot at all on this server, including PM commands that reference this server. Filters will <strong>still apply</strong> to blocked members, however. <strong>It is impossible to block Bot Admins.</strong>
+							</div>
+						</div>
+					</article>
+					<form id="form" action="<%= currentPage %>" method="post" onsubmit="return false;">
+						<div class="field" style="overflow-x: scroll;">
+                            <%- include("../partials/no-results", { isHidden: configData.blocked.length, isSearchQuery: false, description: "There are no blocked members on this server. Type the name of a user below to add one." }) %>
+							<table class="table is-fullwidth<%= configData.blocked.length ? "" : " is-hidden" %>">
+								<thead>
+								<tr>
+									<th></th>
+									<th>Username</th>
+									<th>ID</th>
+									<th></th>
+								</tr>
+								</thead>
+								<tbody>
+								<% configData.blocked.forEach(blockDocument => { %>
+									<tr>
+										<td>
+											<img class="image is-24x24" src="<%= blockDocument.avatar %>" alt="<%= blockDocument.id %>">
+										</td>
+										<td>
+											<%= blockDocument.name %>
+											<% if (blockDocument.isGlobal) { %>
+												&nbsp;
+												<span class="tag">Global</span>
+											<% } %>
+										</td>
+										<td>
+											<%= blockDocument.id %>
+										</td>
+										<td>
+											<button class="button is-small is-danger" name="<%= blockDocument.id %>" onclick="GAwesomeUtil.dashboard.removeTableElement(this); return false;">
+												<span>Remove</span>
+												<span class="icon is-small">
+													<i class="fa fa-times"></i>
+												</span>
+											</button>
+										</td>
+									</tr>
+								<% }); %>
+								</tbody>
+							</table>
+						</div>
+						<div class="field is-horizontal">
+							<div class="field-body">
+								<div class="field is-grouped">
+									<div class="control is-expanded">
+										<input id="new-block-member" class="input is-primary user-autocomplete" type="text" placeholder="Username" onkeypress="return event.keyCode !== 13;">
+									</div>
+									<div class="control">
+										<a class="button is-primary" onclick="newBlock();">
+											<span class="icon">
+										        <i class="fa fa-ban"></i>
+										    </span>
+										    <span>Block</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<script>GAwesomeUtil.setUserAutocomplete('<%= serverData.id %>');</script>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
+</html>

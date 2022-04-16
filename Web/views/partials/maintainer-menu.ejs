@@ -1,0 +1,104 @@
+<aside class="menu">
+	<ul class="menu-list">
+		<li>
+            <% if (currentPage === "/dashboard/maintainer/maintainer") { %>
+			<a class="is-active" href="#">Overview</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/maintainer">Overview</a>
+            <% } %>
+		</li>
+	</ul>
+	<p class="menu-label">
+		<span class="icon is-small">
+            <i class="fa fa-server"></i>
+        </span>
+		Servers
+	</p>
+	<ul class="menu-list">
+		<li>
+            <% if (currentPage === "/dashboard/maintainer/servers/server-list") { %>
+			<a class="is-active" href="#">Server List</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/servers/server-list">Server List</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/servers/big-message") { %>
+			<a class="is-active" href="#">BigMessage</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/servers/big-message">BigMessage</a>
+            <% } %>
+		</li>
+	</ul>
+	<% if (accessPrivileges.includes("administration")) { %>
+	<p class="menu-label">
+        <span class="icon is-small">
+            <i class="fa fa-cogs"></i>
+        </span>
+		Global Options
+	</p>
+	<ul class="menu-list">
+		<li>
+            <% if (currentPage === "/dashboard/maintainer/global-options/blocklist") { %>
+			<a class="is-active" href="#">Blocklist</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/global-options/blocklist">Blocklist</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/global-options/bot-user") { %>
+			<a class="is-active" href="#">Bot User</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/global-options/bot-user">Bot User</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/global-options/homepage") { %>
+			<a class="is-active" href="#">Homepage</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/global-options/homepage">Homepage</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/global-options/wiki-contributors") { %>
+			<a class="is-active" href="#">Wiki Contributors</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/global-options/wiki-contributors">Wiki Contributors</a>
+            <% } %>
+		</li>
+	</ul>
+	<% } if (accessPrivileges.includes("management")) { %>
+	<p class="menu-label">
+        <span class="icon is-small">
+            <i class="fa fa-wrench"></i>
+        </span>
+		Management
+	</p>
+	<ul class="menu-list">
+		<li>
+            <% if (currentPage === "/dashboard/maintainer/management/maintainers") { %>
+			<a class="is-active" href="#">Maintainers</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/management/maintainers">Maintainers</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/management/shards") { %>
+			<a class="is-active" href="#">Shards</a>
+			<% } else { %>
+			<a href="/dashboard/maintainer/management/shards">Shards</a>
+            <% } %>
+			<% if (currentPage === "/dashboard/maintainer/management/injection") { %>
+			<a class="is-active" href="#">Script Injection</a>
+			<% } else { %>
+			<a href="/dashboard/maintainer/management/injection">Script Injection</a>
+			<% } %>
+            <% if (currentPage === "/dashboard/maintainer/management/version") { %>
+			<a class="is-active" href="#">GAB Version</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/management/version">GAB Version</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/management/eval") { %>
+			<a class="is-active" href="#">Evaluate</a>
+            <% } else if (accessPrivileges.includes("eval")) { %>
+			<a href="/dashboard/maintainer/management/eval">Evaluate</a>
+            <% } %>
+            <% if (currentPage === "/dashboard/maintainer/management/logs") { %>
+			<a class="is-active" href="#">Logs</a>
+            <% } else { %>
+			<a href="/dashboard/maintainer/management/logs">Logs</a>
+            <% } %>
+		</li>
+	</ul>
+	<% } %>
+</aside>
