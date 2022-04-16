@@ -1,0 +1,19 @@
+<% if (pageData.searchResults.length > 0) { %>
+	<div class="content">
+		<% pageData.searchResults.forEach(searchResult => { %>
+			<div class="box">
+				<a class="title is-3" href="/wiki/<%= searchResult.title %>">
+					<%= searchResult.title %>
+				</a>
+				<br><br>
+				<div class="content">
+					<%- searchResult.matchText %>
+				</div>
+			</div>
+		<% }); %>
+	</div>
+<% } else { %>
+	<% const resetUrl = "/wiki/Home"; %>
+	<% const activeSearchQuery = pageData.activeSearchQuery; %>
+	<%- include("../partials/no-results", { isSearchQuery: true, activeSearchQuery, resetUrl, mode: pageData.mode }) %>
+<% } %>

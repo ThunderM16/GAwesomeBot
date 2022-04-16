@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= pageData.pageTitle %></title>
+	<% include ../partials/head %>
+</head>
+<body>
+	<section id="header" class="main-header-section hero is-primary is-small is-bold" style="">
+		<div class="hero-head">
+			<% include ../partials/header %>
+		</div>
+		<div class="hero-body">
+			<div class="container has-text-centered">
+				<h1 class="subtitle is-1">
+					<span class="icon is-large">
+                        <i class="fa fa-bolt"></i>
+                    </span>
+					Extensions for <strong>@everyone</strong>.
+				</h1>
+				<%- include("../partials/adspace", { officialMode: typeof officialMode !== undefined ? officialMode : false, adsEnabled: true }) %>
+				<% if (!['my', 'builder'].includes(pageData.mode)) { %>
+					<div class="columns">
+						<div class="column is-8 is-offset-2">
+							<form onsubmit="return false;">
+								<div class="field has-addons has-addons-centered">
+									<div class="control is-expanded">
+									<input id="search-input" class="input is-primary header-search-box is-large" type="text" placeholder="I'm looking for..." value="<%= pageData.activeSearchQuery %>">
+									</div>
+									<div class="control">
+									<button id="search-button" onclick="Turbolinks.visit(`?q=${$('#search-input').val()}`); return false;" class="button is-primary is-large header-search-box">
+										<span class="icon">
+											<i class="fa fa-search"></i>
+										</span>
+										<span>Search</span>
+									</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				<% } %>
+			</div>
+		</div>
+		<div class="hero-foot">
+			<nav class="tabs is-boxed is-centered">
+				<div class="container">
+					<ul>
+						<li class="<%= pageData.mode === 'gallery' ? 'is-active' : '' %>">
+							<a href="/extensions/gallery">
+								<span class="icon">
+									<i class="fa fa-fa"></i>
+								</span>
+								<% if (pageData.mode === "gallery") { %>
+									Gallery
+									&nbsp;
+									<span class="tag is-small is-primary">
+										<%= pageData.rawCount %>
+									</span>
+								<% } else { %>
+									<span>Gallery</span>
+								<% } %>
+							</a>
+						</li>
+						<li class="<%= pageData.mode === 'queue' ? 'is-active' : '' %>">
+							<a href="/extensions/queue">
+								<span class="icon">
+									<i class="fa fa-clock-o"></i>
+								</span>
+								<% if (pageData.mode === "queue") { %>
+									Queue
+									&nbsp;
+									<span class="tag is-small is-primary">
+										<%= pageData.rawCount %>
+									</span>
+								<% } else { %>
+									<span>Queue</span>
+								<% } %>
+							</a>
+						</li>
+						<% if (authUser) { %>
+							<li class="<%= ['my', 'builder'].includes(pageData.mode) ? 'is-active' : '' %>">
+								<a href="/extensions/my">
+									<span class="icon">
+										<i class="fa fa-dashboard"></i>
+									</span>
+									<% if (pageData.mode === "my") { %>
+										My Extensions
+										&nbsp;
+										<span class="tag is-small is-primary">
+											<%= pageData.rawCount %>
+										</span>
+									<% } else { %>
+										<span>My Extensions</span>
+									<% } %>
+								</a>
+							</li>
+						<% } %>
+					</ul>
+				</div>
+			</nav>
+		</div>
+	</section>
+
+	<section id="frame"	class="section is-white">
+		<div class="container">
+			<% if (["gallery", "queue"].includes(pageData.mode)) { %>
+				<% include ../partials/extension-gallery %>
+			<% } else { %>
+				<% include ../partials/dashboard-socket-updates %>
+				<% if (pageData.mode === "my") { %>
+					<% include ../partials/my-extensions %>
+				<% } else if (pageData.mode === "builder") { %>
+					<% const isGallery = true; %>
+					<% include ../partials/extension-builder %>
+				<% } %>
+			<% } %>
+		</div>
+	</section>
+
+	<section class="hero is-small is-black">
+		<div class="hero-body">
+			<div class="container">
+				<div class="has-text-centered">
+					<p class="hero-buttons">
+						<a class="button is-primary is-outlined is-large" href="/wiki/Extensions">
+							<span class="icon">
+								<i class="fa fa-book"></i>
+							</span>
+							<span>Read the extension docs</span>
+						</a>
+					</p>
+					<br>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
