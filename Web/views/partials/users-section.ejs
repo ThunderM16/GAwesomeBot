@@ -1,0 +1,231 @@
+<style type="text/css">
+@media screen and (max-width: 768px) {
+	.profile-image {
+		width: 72px !important;
+	}
+}
+@media screen and (min-width: 769px) {
+	.profile-image {
+		width: 256px;
+	}
+}
+</style>
+<script>
+GAwesomeUtil.searchUsers = (query) => {
+	Turbolinks.visit("/activity/users?q=" + encodeURIComponent(query));
+};
+</script>
+
+<% if ((pageData.activeSearchQuery && pageData.userProfile) || !pageData.activeSearchQuery) { %>
+	<nav class="columns">
+		<div class="column is-8 is-offset-2">
+			<% if (pageData.activeSearchQuery) { %>
+				<div class="box">
+					<article class="media">
+						<div class="media-left">
+			    			<img class="image profile-image" style="width: 256px;" src="<%= pageData.userProfile.avatar %>" alt="<%= pageData.userProfile.id %>">
+		    			</div>
+			    		<div class="media-content">
+							<h2 class="title">
+								<%= pageData.userProfile.username %><small class="subtitle is-4">#<%= pageData.userProfile.discriminator %></small>
+								<span class="tag is-medium <%= pageData.userProfile.statusColor %>"><%= pageData.userProfile.status.charAt(0).toUpperCase() + pageData.userProfile.status.slice(1) %></span>
+								<% if (["108892284119977984", "139836912335716352"].includes(pageData.userProfile.id)) { %>
+								<span class="tag is-medium is-danger">
+									<span class="icon">
+										<i class="fa fa-wrench"></i>
+									</span>
+									&nbsp;
+									Developer
+								</span>
+								<% } else if (pageData.userProfile.isSudoMaintainer) { %>
+								<span class="tag is-medium is-primary">
+									<span class="icon">
+										<i class="fa fa-wrench"></i>
+									</span>
+									&nbsp;
+									Sudo Maintainer
+								</span>
+								<% } else if (pageData.userProfile.isMaintainer) { %>
+								<span class="tag is-medium is-link">
+									<span class="icon">
+										<i class="fa fa-wrench"></i>
+									</span>
+									&nbsp;
+									Maintainer
+								</span>
+								<% } else if (pageData.userProfile.isContributor) { %>
+									<span class="tag is-medium is-link">Contributor</span>
+								<% } %>
+							</h2>
+							<h5 class="subtitle">
+								Joined Discord <span title="<%= pageData.userProfile.rawAccountAge %>"><%= pageData.userProfile.roundedAccountAge %></span>
+							</h5>
+							<div class="content">
+								<h4 class="title is-3">
+									<% if (pageData.userProfile.game) { %>
+										<span class="icon is-medium">
+											<i class="fa fa-gamepad"></i>
+										</span>
+										<span>Playing <strong><%= pageData.userProfile.game %></strong></span>
+										<br>
+									<% } %>
+									<% if (pageData.userProfile.status !== "online" && pageData.userProfile.rawLastSeen && pageData.userProfile.lastSeen) { %>
+										<span class="icon is-medium">
+											<i class="fa fa-clock-o"></i>
+										</span>
+										<span>Seen <span title="<%= pageData.userProfile.rawLastSeen %>"><strong><%= pageData.userProfile.lastSeen %></strong></span></span>
+										<br>
+									<% } %>
+									<span class="icon is-medium">
+										<i class="fa fa-user"></i>
+									</span>
+									<span>ID <strong><%= pageData.userProfile.id %></strong></span>
+									<br>
+									<% if (pageData.userProfile.mutualServers) { %>
+										<span class="modal-button" pageData-target="#mutual-servers-modal"></span>
+									<% } %>
+									<span class="icon is-medium">
+										<i class="fa fa-list-ul"></i>
+									</span>
+									<span data-target="#mutual-servers-modal"><strong><%= pageData.userProfile.mutualServerCount %></strong> server<%= pageData.userProfile.mutualServerCount === 1 ? "" : "s" %> with GAwesomeBot</span>
+								</h4>
+
+								<h3 class="title is-3">
+									<% if (pageData.userProfile.isAfk) { %>
+										<% if (pageData.userProfile.afkMessage) { %>
+											<span class="modal-button" pageData-target="#afk-message-modal">
+										<% } %>
+										<span class="icon is-medium">
+											<i class="fa fa-keyboard-o"></i>
+										</span>
+										<span>Currently <strong>AFK</strong></span>
+										<% if (pageData.userProfile.afkMessage) { %>
+											</span>
+											<div id="afk-message-modal" class="modal">
+												<div class="modal-background"></div>
+												<div class="modal-container">
+													<div class="modal-content">
+														<div class="box">
+															<p class="title is-3"><%= pageData.userProfile.afkMessage %></p>
+														</div>
+													</div>
+												</div>
+												<button class="modal-close"></button>
+											</div>
+										<% } %>
+										<br>
+									<% } %>
+									<span class="icon is-medium">
+										<i class="fa fa-star"></i>
+									</span>
+									<span>Has <strong><%= pageData.userProfile.points %></strong> point<%= pageData.userProfile.points === 1 ? "" : "s" %></span>
+									<br>
+									<% if (pageData.userProfile.pastNames && pageData.userProfile.pastNames.length > 0) { %>
+										<span class="modal-button" pageData-target="#past-names-modal">
+									<% } %>
+									<span class="icon is-medium">
+										<i class="fa fa-font"></i>
+									</span>
+									<span><strong><%= pageData.userProfile.pastNameCount %></strong> past name<%= pageData.userProfile.pastNameCount === 1 ? "" : "s" %></span>
+									<% if (pageData.userProfile.pastNames && pageData.userProfile.pastNames.length > 0) { %>
+										</span>
+										<div id="past-names-modal" class="modal">
+											<div class="modal-background"></div>
+											<div class="modal-container">
+												<div class="modal-content">
+													<div class="box">
+														<% pageData.userProfile.pastNames.forEach(pastName => { %>
+															<p class="title is-3"><%= pastName %></p>
+														<% }); %>
+													</div>
+												</div>
+											</div>
+											<button class="modal-close"></button>
+										</div>
+									<% } %>
+								</h3>
+
+								<% if (pageData.userProfile.profileFields) { %>
+									<h4 class="title is-4">
+										<% for(var key in pageData.userProfile.profileFields) { %>
+											<span><%= key.charAt(0).toUpperCase() + key.slice(1) %>: <%- pageData.userProfile.profileFields[key] %></span>
+											<br>
+										<% } %>
+									</h4>
+								<% } %>
+							</div>
+			    		</div>
+					</article>
+				</div>
+				<script>
+				document.getElementById("frame").style.backgroundImage = "url('<%= pageData.userProfile.backgroundImage %>')";document.getElementById("frame").style.backgroundSize = "cover";document.getElementById("frame").style.paddingBottom = "200px"
+				</script>
+				<% if (pageData.userProfile.mutualServers) { %>
+					<div id="mutual-servers-modal" class="modal">
+						<div class="modal-background"></div>
+						<div class="modal-container">
+							<div class="modal-content">
+								<div class="box">
+									<% pageData.userProfile.mutualServers.forEach(mutualServer => { %>
+										<article class="media">
+											<div class="media-left">
+												<img class="image is-64x64" src="<%= mutualServer.icon %>" alt="<%= mutualServer.id %>">
+											</div>
+											<div class="media-content">
+												<p class="title is-3"><%= mutualServer.name %></p>
+												<p class="subtitle is-5">Owned by @<%= mutualServer.owner %></p>
+											</div>
+											<a class="media-right" href="/activity/servers?q=<%= mutualServer.name %>">
+												<span class="icon is-medium">
+													<i class="fa fa-info"></i>
+												</span>
+											</a>
+										</article>
+									<% }); %>
+								</div>
+							</div>
+						</div>
+						<button class="modal-close"></button>
+					</div>
+				<% } %>
+			<% } else { %>
+				<script>
+				document.getElementById("frame").style.backgroundImage = ""; document.getElementById("frame").style.paddingBottom = "";
+				</script>
+				<div class="box hero">
+					<article class="media">
+			    		<div class="media-content">
+							<h3 class="subtitle is-3">
+								<span class="icon is-medium">
+									<i class="fa fa-star"></i>
+								</span>
+								<span><strong><%= pageData.totalPoints %></strong> point<%= pageData.totalPoints === 1 ? "" : "s" %> total</span>
+							</h3>
+							<h3 class="subtitle is-3">
+								<span class="icon is-medium">
+									<i class="fa fa-user"></i>
+								</span>
+								<span><strong><%= pageData.publicProfilesCount %></strong> public user profile<%= pageData.publicProfilesCount === 1 ? "" : "s" %></span>
+							</h3>
+							<h3 class="subtitle is-3">
+								<span class="icon is-medium">
+									<i class="fa fa-bell"></i>
+								</span>
+								<span><strong><%= pageData.reminderCount %></strong> reminder<%= pageData.reminderCount === 1 ? "" : "s" %> set</span>
+							</h3>
+						</div>
+				    	<div class="media-right">
+				    		<img class="image profile-image" style="width: 168px;border-radius: 100%;" src="/static/img/profile.png">
+			    		</div>
+					</article>
+				</div>
+			<% } %>
+		</div>
+	</nav>
+<% } else { %>
+	<script>
+	document.getElementById("frame").style.backgroundImage = ""; document.getElementById("frame").style.paddingBottom = "";
+	</script>
+	<% var resetUrl = "/activity/users?q="; %>
+	<%- include("../partials/no-results", { isSearchQuery: true, activeSearchQuery: pageData.activeSearchQuery, resetUrl, mode: pageData.mode }) %>
+<% } %>
