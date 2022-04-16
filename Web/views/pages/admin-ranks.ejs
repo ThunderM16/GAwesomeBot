@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title><%= serverData.name %> Ranks - GAwesomeBot Admin Console</title>
+	<% include ../partials/head %>
+
+	<script>
+	function newRank() {
+		var newRankName = $("#new-rank-name");
+		if(newRankName.val()) {
+			newRankName.removeClass("is-danger");
+		} else {
+			newRankName.addClass("is-danger");
+		}
+
+		var newRankScore = $("#new-rank-max_score");
+		if(newRankScore.val()) {
+			newRankScore.removeClass("is-danger");
+		} else {
+			newRankScore.addClass("is-danger");
+		}
+
+		if(newRankName.val() && newRankScore.val()) {
+			$.ajax({
+				type: "POST",
+				url: "<%= currentPage %>",
+				data: {
+					"new-name": newRankName.val(),
+					"new-max_score": newRankScore.val(),
+					"new-role_id": $("#new-rank-role_id").val()
+				},
+				success: function() {
+					GAwesomeUtil.SFS();
+					$("#form").submit();
+				    Turbolinks.visit('');
+				}
+			});
+		}
+	}
+	</script>
+</head>
+<body onload="GAwesomeUtil.SFS();">
+	<% include ../partials/dashboard-header %>
+	<% include ../partials/dashboard-socket-updates %>
+
+	<section class="section is-white">
+		<div class="container">
+			<div class="columns">
+				<div id="menu" class="column is-one-quarter">
+					<% include ../partials/admin-menu %>
+				</div>
+				<div class="column">
+					<h1 class="title">
+						Member Ranks
+					</h1>
+					<article class="message is-primary">
+						<div class="message-body">
+							Ranks <strong>classify members by activity</strong> in both voice and text chat. Each rank you add will have a <strong>maximum activity score</strong> for members to have that rank before they receive the next-highest rank. Activity scores are calculated with this formula: <code>no. messages + minutes active on voice</code>. You can also set ranks to automatically assign a role on the server.
+						</div>
+					</article>
+					<form id="form" onsubmit="GAwesomeUtil.submitForm(); return false;">
+						<div class="field" style="overflow-x: scroll;">
+                            <%- include("../partials/no-results", { isHidden: configData.ranks_list.length, isSearchQuery: false, description: "All the default ranks are gone! Fill out the form below to add your own rank." }) %>
+							<table class="table is-fullwidth<%= configData.ranks_list.length ? "" : " is-hidden" %>">
+								<thead>
+								<tr>
+									<th>Name</th>
+									<th>Max. Activity Score</th>
+									<th>Role</th>
+									<th>Members</th>
+									<th></th>
+								</tr>
+								</thead>
+								<tbody>
+								<% configData.ranks_list.forEach(rankDocument => { %>
+									<tr>
+										<td>
+											<%= rankDocument._id %>
+										</td>
+										<td>
+											<p class="control is-narrow">
+												<input name="rank-<%= rankDocument._id %>-max_score" class="input is-primary is-small" type="number" value="<%= rankDocument.max_score %>" min="1" placeholder="Max. activity score">
+											</p>
+										</td>
+										<td>
+											<p class="control">
+												<span class="select is-primary is-small">
+													<select name="rank-<%= rankDocument._id %>-role_id">
+														<option value="">None</option>
+														<% pageData.roleData.forEach( role => { %>
+															<option value="<%= role.id %>"<%= rankDocument.role_id === role.id ? " selected" : "" %>><%= role.name %></option>
+														<% }); %>
+													</select>
+												</span>
+											</p>
+										</td>
+										<td class="ranks-member-count">
+											<%= rankDocument.members %>
+										</td>
+										<td>
+											<button class="button is-small is-danger" name="<%= rankDocument._id %>" onclick="GAwesomeUtil.dashboard.removeTableElement(this); return false;">
+												<span>Remove</span>
+												<span class="icon is-small">
+													<i class="fa fa-times"></i>
+												</span>
+											</button>
+										</td>
+									</tr>
+								<% }); %>
+								</tbody>
+							</table>
+							<button class="button is-danger" name="ranks_list-reset" onclick="GAwesomeUtil.isLoading(this); GAwesomeUtil.dashboard.post({ 'ranks_list-reset': true }).then(() => { GAwesomeUtil.isFinished(this); $('.ranks-member-count').html(0); }); return false;">
+								<span>Reset Everyone's Rank</span>
+								<span class="icon is-small">
+									<i class="fa fa-times"></i>
+								</span>
+							</button>
+							<br><br>
+						</div>
+						<div class="field">
+							<div class="control is-expanded">
+								<input id="new-rank-name" class="input is-primary" type="text" minlength="1" maxlength="200" placeholder="Name" onkeypress="return event.keyCode !== 13;">
+							</div>
+						</div>
+						<div class="field is-horizontal">
+							<div class="field-body">
+								<div class="field is-grouped">
+									<div class="control is-expanded">
+										<input id="new-rank-max_score" class="input is-primary" type="number" min="1" placeholder="Max. activity score" onkeypress="return event.keyCode !== 13;">
+									</div>
+									<div class="control">
+										<span class="select is-primary">
+											<select id="new-rank-role_id">
+												<option value="">No Role</option>
+												<% pageData.roleData.forEach( role => { %>
+													<option value="<%= role.id %>"><%= role.name %></option>
+												<% }); %>
+											</select>
+										</span>
+									</div>
+									<div class="control">
+										<a class="button is-primary" onclick="newRank();">
+											<span class="icon">
+										        <i class="fa fa-plus"></i>
+										    </span>
+										    <span>Add</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<br>
+						<% var formButtonsUnsaved = false; %>
+						<% include ../partials/form-buttons %>
+						<% include ../partials/form-buttons-bar %>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<% include ../partials/footer %>
+	<% include ../partials/scroll-top-button %>
+</body>
+</html>
